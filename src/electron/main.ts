@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import { isDev } from "./utils.js";
+import { pollResources } from "./resourceManager.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,4 +15,6 @@ app.on("ready", () => {
   } else {
     mainWindow.loadFile(dir);
   }
+
+  pollResources();
 });
