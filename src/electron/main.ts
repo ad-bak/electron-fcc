@@ -1,13 +1,18 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
-import { isDev } from "./utils.js";
-import { pollResources } from "./resourceManager.js";
+import { ipcHandle, isDev } from "./utils.js";
+import { getStaticData, pollResources } from "./resourceManager.js";
+import { getPreloadPath } from "./pathResolver.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.on("ready", () => {
-  const mainWindow = new BrowserWindow({});
+  const mainWindow = new BrowserWindow({
+    webPreferences: {
+      preload: getPreloadPath(),
+    },
+  });
   const dir = path.join(__dirname, "../dist-react/index.html");
 
   if (isDev()) {
@@ -16,5 +21,9 @@ app.on("ready", () => {
     mainWindow.loadFile(dir);
   }
 
-  pollResources();
+  pollResources(mainWindow);
+
+  ipcHandle("getStaticData", () => {
+    return getStaticData();
+  });
 });
